@@ -1,0 +1,37 @@
+# POST requests with JSON payloads
+
+# Simple POST with JSON
+POST https://httpbin.io/post
+Content-Type: application/json
+
+{
+  "name": "http.hx",
+  "description": "Helix HTTP client plugin",
+  "version": "1.0.0"
+}
+
+###
+
+# POST with multiple headers
+POST https://httpbin.io/post
+Content-Type: application/json
+Accept: application/json
+User-Agent: http.hx/1.0
+
+{
+  "timestamp": "2025-11-03T00:00:00Z",
+  "data": {
+    "key": "value",
+    "nested": {
+      "field": 123
+    }
+  }
+}
+
+###
+
+# POST with form data
+POST https://httpbin.io/post
+Content-Type: application/x-www-form-urlencoded
+
+name=http.hx&version=1.0&language=scheme

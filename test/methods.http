@@ -1,0 +1,33 @@
+# Various HTTP methods
+
+# GET request
+GET https://httpbin.io/get
+
+###
+
+# POST request
+POST https://httpbin.io/post
+Content-Type: application/json
+
+{"method": "POST"}
+
+###
+
+# PUT request
+PUT https://httpbin.io/put
+Content-Type: application/json
+
+{"method": "PUT"}
+
+###
+
+# DELETE request
+DELETE https://httpbin.io/delete
+
+###
+
+# PATCH request
+PATCH https://httpbin.io/patch
+Content-Type: application/json
+
+{"method": "PATCH"}

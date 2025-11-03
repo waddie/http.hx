@@ -1,0 +1,19 @@
+# HTTP requests with variable substitution
+
+@baseUrl = https://httpbin.io
+@token = test-token-123
+@userId = 42
+
+# GET with variable in URL
+GET {{baseUrl}}/get
+
+###
+
+# GET with authorization header
+GET {{baseUrl}}/bearer
+Authorization: Bearer {{token}}
+
+###
+
+# GET with query parameter using variable
+GET {{baseUrl}}/anything/{{userId}}
