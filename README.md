@@ -45,6 +45,8 @@ comment-token = "--"
 indent = { tab-width = 2, unit = " " }
 ```
 
+You might also want `./runtime/queries/http/textobjects.scm` from this repo. The main useful thing it adds is match/around/function support, which makes it easy to select an entire request (URL + headers + body) in one motion for execution.
+
 ## Usage
 
 ### Basic Example
