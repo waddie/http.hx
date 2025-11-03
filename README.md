@@ -4,6 +4,8 @@ A currently minimal HTTP client plugin for the Helix editor, based on the Visual
 
 Parses the request into a `curl` command and runs that via shell, parsing the response to Markdown with appropriate injections.
 
+I’ve only tested this on macOS. Linux should be no different, but I’ve no idea what it will do on Windows.
+
 Currently you’ll need [mattwparas’s steel-event-system Helix fork](https://github.com/mattwparas/helix/tree/steel-event-system) to use this, and may want to check out his [helix-config](https://github.com/mattwparas/helix-config) repo to see how to set up key bindings, etc.
 
 ## Demo
@@ -25,7 +27,7 @@ This is a work in progress, experimental plugin for a work in progress, experime
 
 ## Installation
 
-You need to be running Helix with the experimental Steel plugin system.
+You need to be running Helix with the experimental Steel plugin system. You’ll need `curl` installed and in your `PATH`.
 
 1. Copy `http-client.scm` to your Helix configuration directory (e.g. `~/.config/helix/`)
 2. Ensure `http2curl.scm` is available, e.g. in `./config/helix/cogs/http2curl.scm` (grab it from my [http2curl repo](https://github.com/waddie/http2curl.scm))
@@ -112,6 +114,10 @@ A minimal `init.scm` enabling this plugin, with key bindings, might look somethi
 ### Test Files
 
 See `test/` directory for example `.http` files demonstrating various features.
+
+## LLM disclosure
+
+I used Claude Code a bit to spin this up. It’s absolutely bloody terrible at Scheme, but be aware that not all of this code was written by humans, although one did read it.
 
 ## License
 
