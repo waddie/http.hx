@@ -2,13 +2,17 @@
 
 A currently minimal HTTP client plugin for the Helix editor, based on the Visual Studio Code REST client syntax.
 
-Parses the request into a `curl` command and runs it via shell,
+Parses the request into a `curl` command and runs that via shell, parsing the response to Markdown with appropriate injections.
 
 Currently you’ll need [mattwparas’s steel-event-system Helix fork](https://github.com/mattwparas/helix/tree/steel-event-system) to use this, and may want to check out his [helix-config](https://github.com/mattwparas/helix-config) repo to see how to set up key bindings, etc.
 
 ## Demo
 
 ![An asciinema recording of HTTP requests being executed in Helix](https://github.com/waddie/http.hx/blob/main/images/demo.gif?raw=true)
+
+## Status
+
+This is a work in progress, experimental plugin for a work in progress, experimental plugin system. It’s barely been tested. I wouldn’t necessarily advise firing HTTP requests at your production environment with this.
 
 ## Features
 
@@ -26,6 +30,18 @@ You need to be running Helix with the experimental Steel plugin system.
 1. Copy `http-client.scm` to your Helix configuration directory (e.g. `~/.config/helix/`)
 2. Ensure `http2curl.scm` is available, e.g. in `./config/helix/cogs/http2curl.scm` (grab it from my [http2curl repo](https://github.com/waddie/http2curl.scm))
 3. Load the plugin in Helix (e.g. add to `init.scm`, see below for an example)
+
+Helix doesn’t ship with the http grammar by default. I built and installed the grammar and `highlight.scm` queries from [tree-sitter-http](https://github.com/rest-nvim/tree-sitter-http), then added this to my `languages.toml`:
+
+```toml
+[[language]]
+name = "http"
+scope = "source.http"
+injection-regex = "(http)"
+file-types = ["http"]
+comment-token = "--"
+indent = { tab-width = 2, unit = " " }
+```
 
 ## Usage
 
@@ -50,6 +66,8 @@ Content-Type: application/json
 ```
 
 Select a request and run `:http-exec-selection` to execute. Results appear in the `*http*` scratch buffer.
+
+Note that when I say “select”, I really mean “select” the whole thing. It won’t work/do what you expect with your cursor somewhere in the request, like it would with similar plugins in other editors. I think this is in keeping with Helix’s selection-action model.
 
 ### Variable Substitution
 
@@ -79,7 +97,6 @@ A minimal `init.scm` enabling this plugin, with key bindings, might look somethi
 (require (prefix-in helix. "helix/commands.scm"))
 (require (prefix-in helix.static. "helix/static.scm"))
 (require "helix/configuration.scm")
-(require "nrepl.scm")
 
 (require "http-client.scm")
 
