@@ -17,3 +17,5 @@ Authorization: Bearer {{token}}
 
 # GET with query parameter using variable
 GET {{baseUrl}}/anything/{{userId}}
+
+###
