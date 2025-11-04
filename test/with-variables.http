@@ -1,6 +1,7 @@
 # HTTP requests with variable substitution
 
-@baseUrl = https://httpbin.io
+@protocol = https
+@baseUrl = {{protocol}}://httpbin.io
 @token = test-token-123
 @userId = 42
 
