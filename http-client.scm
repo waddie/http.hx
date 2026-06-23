@@ -29,8 +29,7 @@
 ;; ============================================================================
 
 (require (prefix-in http2curl: "http2curl/http2curl.scm"))
-(require-builtin steel/process)
-(require-builtin steel/time)
+(require "run-command/run-command.scm")
 (require-builtin helix/core/text as text.)
 (require (prefix-in helix. "helix/commands.scm"))
 (require (prefix-in helix.static. "helix/static.scm"))
@@ -231,44 +230,20 @@
 ;; Curl Execution
 ;; ============================================================================
 
-;; Execute curl command with timeout using shell
+;; Execute curl command with timeout using the run-command library
 (define (http:run-curl-with-timeout curl-cmd-str timeout-ms)
-  "Execute curl command string with timeout via /bin/sh -c
+  "Execute curl command string with timeout via the run-command library.
    curl-cmd-str: string - complete curl command (e.g., 'curl -i https://...')
    timeout-ms: number - timeout in milliseconds
    Returns: Result<String> - Ok with stdout or Err with error message"
   (with-handler (lambda (err) (Err (string-append "Curl execution failed: " (to-string err))))
-    (let* ([cmd (command "/bin/sh" (list "-c" curl-cmd-str))]
-           [_ (set-piped-stdout! cmd)] ; Pipes stdout, stderr, and stdin
-           [child-result (spawn-process cmd)])
-
-      (if (Err? child-result)
-        (Err (string-append "Failed to spawn curl: "
-              (to-string (Err->value child-result))))
-
-        (let* ([child (Ok->value child-result)]
-               [timed-out? (box #f)]
-               [result-box (box #f)]
-
-               ;; Spawn timeout thread
-               [timeout-thread (spawn-native-thread (lambda ()
-                                                     (time/sleep-ms timeout-ms)
-                                                     (when (not (unbox result-box))
-                                                       (set-box! timed-out? #t)
-                                                       (kill child))))]
-
-               ;; Wait for result
-               [output-result (wait->stdout child)])
-
-          ;; Mark as complete
-          (set-box! result-box #t)
-
-          ;; Check if timed out
-          (if (unbox timed-out?)
-            (Err (string-append "Request timed out after "
-                  (number->string (/ timeout-ms 1000))
-                  " seconds"))
-            output-result))))))
+    ;; run-command returns Result<(cons stdout stderr)>; the response parser
+    ;; only consumes curl's stdout, so discard stderr and keep the prior
+    ;; Result<String> contract. Spawn failures and timeouts surface as Err.
+    (let ([result (run-command curl-cmd-str timeout-ms)])
+      (if (Err? result)
+        result
+        (Ok (car (Ok->value result)))))))
 
 ;; Execute curl command
 (define (http:execute-curl-command curl-cmd-str state)
