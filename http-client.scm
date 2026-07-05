@@ -237,13 +237,23 @@
    timeout-ms: number - timeout in milliseconds
    Returns: Result<String> - Ok with stdout or Err with error message"
   (with-handler (lambda (err) (Err (string-append "Curl execution failed: " (to-string err))))
-    ;; run-command returns Result<(cons stdout stderr)>; the response parser
-    ;; only consumes curl's stdout, so discard stderr and keep the prior
-    ;; Result<String> contract. Spawn failures and timeouts surface as Err.
-    (let ([result (run-command curl-cmd-str timeout-ms)])
-      (if (Err? result)
-        result
-        (Ok (car (Ok->value result)))))))
+    ;; run-command returns a result hash {stdout, stderr, exit, ok, timed-out};
+    ;; the response parser only consumes curl's stdout. Map to the prior
+    ;; Result<String> contract: timeouts, spawn failures, and non-zero curl
+    ;; exits (connection refused, DNS failure) all surface as Err so a failed
+    ;; request is never mistaken for an empty body.
+    (let ([result (run-command curl-cmd-str (hash 'timeout-ms timeout-ms))])
+      (cond
+        [(hash-ref result 'timed-out)
+          (Err (string-append "Curl timed out after "
+                (to-string timeout-ms)
+                "ms"))]
+        [(hash-ref result 'ok) (Ok (hash-ref result 'stdout))]
+        [else
+          (Err (string-append "Curl failed (exit "
+                (to-string (hash-ref result 'exit))
+                "): "
+                (trim (hash-ref result 'stderr))))]))))
 
 ;; Execute curl command
 (define (http:execute-curl-command curl-cmd-str state)
